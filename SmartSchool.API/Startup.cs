@@ -37,6 +37,14 @@ namespace SmartSchool.API
                 context => context.UseSqlite(Configuration.GetConnectionString("Default"))
                 );
 
+            //Ele é quem define as rotas
+            services.AddControllers()
+                    .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling =
+                                                        Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+            //Estou passando a aplicação de domínios dos assemblies. O AutoMapper vai procurar dentro das Dlls qual que é a classe que herda de Profile
+            //Basicamente mapear os Dtos e as models, o domínio
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
             //Toda vez que eu usar o IRepository eu estarei usando o Repository
             #region AddSingleton
             //Quando iniciar o serviço ele vai estanciar o contexto (Repository) e sempre usar a mesma instância. Compartilhando a mesma memória em todas as requisições
@@ -51,10 +59,7 @@ namespace SmartSchool.API
             services.AddScoped<IRepository, Repository>();
             #endregion
 
-            //Ele é quem define as rotas
-            services.AddControllers()
-                    .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling =
-                                                        Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+            
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "SmartSchool.API", Version = "v1" });
