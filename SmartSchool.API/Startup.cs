@@ -29,12 +29,32 @@ namespace SmartSchool.API
         public void ConfigureServices(IServiceCollection services)
         {
 
+            //Não é interessante injetar o contexto diretamente no controller, a utilização do contexto dessa forma vai trazer dados de outros models desnecessariamente consumindo recursos
+            //O encapsulmaneto é necessário para questões de segurança, ele esconde os membros de uma classe para acesso externo usando identificadores de acesso
+
             //Aqui estamos dizendo para o nosso serviço que o SmartContext é nosso contexto e estamos usando Sqlite
             services.AddDbContext<SmartContext>(
                 context => context.UseSqlite(Configuration.GetConnectionString("Default"))
                 );
+
+            //Toda vez que eu usar o IRepository eu estarei usando o Repository
+            #region AddSingleton
+            //Quando iniciar o serviço ele vai estanciar o contexto (Repository) e sempre usar a mesma instância. Compartilhando a mesma memória em todas as requisições
+            //services.AddSingleton<IRepository, Repository>();
+            #endregion
+            #region AddTransient
+            //Ele nunca vai usar a mesma requisição amesma instância, ou seja. Se houver 5 dependências ou requisições ,serão 5 instâncias distintas
+            //services.AddTransient<IRepository, Repository>();
+            #endregion
+            #region AddScoped
+            //Ele cria uma instância e caso houver alguma dependência de outro objeto ele utiliza essa mesma, ele só renova a instância em caso de nova requisição
+            services.AddScoped<IRepository, Repository>();
+            #endregion
+
             //Ele é quem define as rotas
-            services.AddControllers();
+            services.AddControllers()
+                    .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling =
+                                                        Newtonsoft.Json.ReferenceLoopHandling.Ignore);
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "SmartSchool.API", Version = "v1" });

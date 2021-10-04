@@ -11,43 +11,40 @@ namespace SmartSchool.API.Controllers
     [ApiController]
     public class AlunoController : ControllerBase
     {
-        private readonly SmartContext context;
+        public readonly IRepository repo;
 
-        public AlunoController(SmartContext context)
+        public AlunoController(IRepository repo)
         {
-            this.context = context;
+            this.repo = repo;
         }
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok(context.Alunos);
+            return Ok(repo.GetAllAlunos(true));
         }
-        [HttpGet("ById")]
+        [HttpGet("{id}")]
         public IActionResult GetById(int Id)
         {
-            return Ok(context.Alunos.FirstOrDefault(f => f.Id == Id)) ;
+            return Ok(repo.GetAlunosById(Id,true)) ;
         }
-        [HttpGet("ByName")]
-        public IActionResult GetByName(string Nome, string Sobrenome)
-        {
-            return Ok(context.Alunos.Where(aluno => aluno.Nome.Contains(Nome) && aluno.Sobrenome.Contains(Sobrenome)));
-        }
+        
         [HttpPost]
         public IActionResult Post(Aluno Aluno)
         {
-            context.Add(Aluno);
-            context.SaveChanges();
-            return Ok(Aluno);
+            repo.Add(Aluno);
+            if (repo.SaveChanges())
+                return Ok(Aluno);
+            return BadRequest("Deu merda com o Aluno mermão");
         }
         [HttpPut("{id}")]
         public IActionResult Put(int id, Aluno Aluno)
         {
-            var aluno = context.Alunos.AsNoTracking().FirstOrDefault(f => f.Id == id);
-            if (aluno == null)
-                return BadRequest("Aluno não encontrado!");
-            context.Update(Aluno);
-            context.SaveChanges();
-            return Ok(Aluno);
+            var aluno = repo.GetAlunosById(id);
+            
+            repo.Update(Aluno);
+            if(repo.SaveChanges())
+                return Ok(Aluno);
+            return BadRequest("Aluno não encontrado!");
         }
         [HttpPatch("{id}")]
         public IActionResult Patch(int id, Aluno Aluno)
@@ -55,23 +52,22 @@ namespace SmartSchool.API.Controllers
             //AsNoTracking serve para que seja possível salvar o objeto após consultar ele no context
             //O context mantém ele basicamente em "memória" e se tu tenta atualizar ocorre erro, como se fosse um I/O
             //Ele basicamente não trava o recurso
-            var aluno = context.Alunos.AsNoTracking().FirstOrDefault(f => f.Id == id);
-            if (aluno == null)
-                return BadRequest("Aluno não encontrado!");
-            context.Update(Aluno);
-            context.SaveChanges();
-            return Ok();
+            var aluno = repo.GetAlunosById(id);
+            
+            repo.Update(Aluno);
+            if (repo.SaveChanges())                
+                return Ok();
+            return BadRequest("Aluno não encontrado!");
         }
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var aluno = context.Alunos.FirstOrDefault(f => f.Id == id);
-            if(aluno == null)
-                return BadRequest("Aluno não encontrado!");
-
-            context.Remove(aluno);
-            context.SaveChanges();
-            return Ok();
+            var aluno = repo.GetAlunosById(id);
+            
+            repo.Delete(aluno);
+            if (repo.SaveChanges())
+                return Ok();
+            return BadRequest("Aluno não encontrado!");
         }
     }
 }
