@@ -3,31 +3,47 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.API.Data;
-using SmartSchool.API.Dtos;
+using SmartSchool.API.v1.Dtos;
 using SmartSchool.API.Models;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace SmartSchool.API.Controllers
 {
-    [Route("api/[controller]")]
+    
+    //Defini a versão da WebApi
+    [ApiVersion("1.0")]
     [ApiController]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class AlunoController : ControllerBase
     {
         public readonly IRepository repo;
         private readonly IMapper mapper;
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="repo"></param>
+        /// <param name="mapper"></param>
         public AlunoController(IRepository repo, IMapper mapper)
         {
             this.repo = repo;
             this.mapper = mapper;
         }
+        /// <summary>
+        /// Método responsavel por retornar todos os Alunos
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public IActionResult Get()
         {
             var alunos = repo.GetAllAlunos(true);
             return Ok(mapper.Map<IEnumerable<AlunoDto>>(alunos));
         }
+        /// <summary>
+        /// Retorna Alunos pelo Id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
@@ -35,6 +51,11 @@ namespace SmartSchool.API.Controllers
             return Ok(mapper.Map<AlunoDto>(aluno));
         }
         
+        /// <summary>
+        /// Método para salvar alunos novos
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         public IActionResult Post(AlunoRegistrarDto model)
         {

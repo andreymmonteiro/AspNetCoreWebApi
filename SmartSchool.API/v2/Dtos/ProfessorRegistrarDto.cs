@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace SmartSchool.API.Dtos
+namespace SmartSchool.API.v2.Dtos
 {
     public class ProfessorRegistrarDto
     {

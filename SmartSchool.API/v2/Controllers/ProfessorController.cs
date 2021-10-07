@@ -3,14 +3,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.API.Data;
-using SmartSchool.API.Dtos;
+using SmartSchool.API.v2.Dtos;
 using SmartSchool.API.Models;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SmartSchool.API.Controllers
+namespace SmartSchool.API.v2.Controllers
 {
-    [Route("api/[controller]")]
+    [ApiVersion("2.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     public class ProfessorController : ControllerBase
     {
@@ -22,6 +23,10 @@ namespace SmartSchool.API.Controllers
             this.repo = repo;
             this.mapper = mapper;
         }
+        /// <summary>
+        /// Pega todos os professores
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public IActionResult Get()
         {
@@ -29,12 +34,22 @@ namespace SmartSchool.API.Controllers
 
             return Ok(mapper.Map<IEnumerable<ProfessorDto>>(Professor));
         }
+        /// <summary>
+        /// Pega um professor através de seu Id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
             var Professor = repo.GetProfessorById(id, true);
             return Ok(mapper.Map<ProfessorDto>(Professor));
         }
+        /// <summary>
+        /// Cria um professor
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         public IActionResult Post(ProfessorRegistrarDto model)
         {
@@ -45,6 +60,12 @@ namespace SmartSchool.API.Controllers
             return BadRequest("Erro ao salvaro o Professor");
 
         }
+        /// <summary>
+        /// Atualiza determinado professore enviando seu Id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPut("{id}")]
         public IActionResult Put(int id, ProfessorRegistrarDto model)
         {
@@ -56,6 +77,11 @@ namespace SmartSchool.API.Controllers
                 return Created($"/api/professor/{model.Id}", mapper.Map<ProfessorDto>(Professor));
             return BadRequest("Professor não encontrado");
         }
+        /// <summary>
+        /// Deleta determinado professor
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete]
         public IActionResult Delete(int id)
         {

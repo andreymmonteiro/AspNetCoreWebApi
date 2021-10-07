@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,7 +12,9 @@ using Microsoft.OpenApi.Models;
 using SmartSchool.API.Data;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace SmartSchool.API
@@ -59,21 +62,77 @@ namespace SmartSchool.API
             services.AddScoped<IRepository, Repository>();
             #endregion
 
+
+            #region Defir versão ou versões da web api
+
+            services.AddVersionedApiExplorer(options =>
+            {
+                options.GroupNameFormat = "'v'VVV";
+                options.SubstituteApiVersionInUrl = true;
+            }).AddApiVersioning(options =>
+            {
+                options.AssumeDefaultVersionWhenUnspecified = true;
+                options.DefaultApiVersion = new ApiVersion(1, 0);
+                options.ReportApiVersions = true;
+            });
+
+
+            var apiProviderDescription = services.BuildServiceProvider().GetService<IApiVersionDescriptionProvider>();
+            #endregion
+
+
             
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "SmartSchool.API", Version = "v1" });
+                foreach (var description in apiProviderDescription.ApiVersionDescriptions)
+                {
+                    c.SwaggerDoc(
+                        description.GroupName, 
+                        
+                        new OpenApiInfo
+                        {
+                            Title = "SmartSchool API",
+                            Description = description.GroupName,
+                            Version = description.ApiVersion.ToString(),
+                            TermsOfService = new Uri("http://elementare.inf.br"),
+                            License = new OpenApiLicense
+                            {
+                                Name = "Smart School License",
+                                Url = new Uri("http://elementare.inf.br")
+                            },
+                            Contact = new OpenApiContact
+                            {
+                                Name = "Andrey Monteiro",
+                                Email = "andrey@elementare.inf.br",
+                                Url = new Uri("http://elementare.inf.br")
+                            }
+                        });
+                }
+                
+                //Pega o nome do arquivo xml
+                var xmlComentsFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                //Pega local onde esta rodando aaplicação
+                var xmlComentsFullPath = Path.Combine(AppContext.BaseDirectory, xmlComentsFile);
+                //concatena o caminho com o nome do arquivo para que seja possível visualizar os comentários
+                c.IncludeXmlComments(xmlComentsFullPath);
             });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider apiProviderDescription)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SmartSchool.API v1"));
+                app.UseSwaggerUI(c => 
+                {
+                    foreach (var description in apiProviderDescription.ApiVersionDescriptions)
+                    {
+                        c.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+                    }
+                    
+                });
             }
 
             //app.UseHttpsRedirection();

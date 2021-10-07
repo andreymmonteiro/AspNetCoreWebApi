@@ -1,0 +1,140 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SmartSchool.API</name>
+    </assembly>
+    <members>
+        <member name="M:SmartSchool.API.Controllers.AlunoController.#ctor(SmartSchool.API.Data.IRepository,AutoMapper.IMapper)">
+            <summary>
+            
+            </summary>
+            <param name="repo"></param>
+            <param name="mapper"></param>
+        </member>
+        <member name="M:SmartSchool.API.Controllers.AlunoController.Get">
+            <summary>
+            Método responsavel por retornar todos os Alunos
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SmartSchool.API.Controllers.AlunoController.GetById(System.Int32)">
+            <summary>
+            Retorna Alunos pelo Id
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SmartSchool.API.Controllers.AlunoController.Post(SmartSchool.API.v1.Dtos.AlunoRegistrarDto)">
+            <summary>
+            Método para salvar alunos novos
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="T:SmartSchool.API.v1.Dtos.AlunoDto">
+            <summary>
+            Classe aluno Data Transfer Object - Necessário para exibir informações que estão ou não na tabela do BD
+            </summary>
+        </member>
+        <member name="P:SmartSchool.API.v1.Dtos.AlunoDto.Id">
+            <summary>
+            Código único gerado pelo sistema
+            </summary>
+        </member>
+        <member name="P:SmartSchool.API.v1.Dtos.AlunoDto.Matricula">
+            <summary>
+            Código definido pelo usuário
+            </summary>
+        </member>
+        <member name="P:SmartSchool.API.v1.Dtos.AlunoDto.DataNasc">
+            <summary>
+            Data de Nascimento
+            </summary>
+        </member>
+        <member name="P:SmartSchool.API.v1.Dtos.AlunoDto.DataInicio">
+            <summary>
+            Data em que se iniciou na instituição
+            </summary>
+        </member>
+        <member name="T:SmartSchool.API.v1.Dtos.AlunoRegistrarDto">
+            <summary>
+            Classe aluno Data Transfer Object - Necessário para Salvar informações que estão ou não na interface do usuário com a tabela do BD
+            </summary>
+        </member>
+        <member name="P:SmartSchool.API.v1.Dtos.AlunoRegistrarDto.Id">
+            <summary>
+            Código único gerado pelo sistema
+            </summary>
+        </member>
+        <member name="P:SmartSchool.API.v1.Dtos.AlunoRegistrarDto.Matricula">
+            <summary>
+            Código definido pelo usuário
+            </summary>
+        </member>
+        <member name="P:SmartSchool.API.v1.Dtos.AlunoRegistrarDto.DataNasc">
+            <summary>
+            Data de Nascimento
+            </summary>
+        </member>
+        <member name="P:SmartSchool.API.v1.Dtos.AlunoRegistrarDto.DataInicio">
+            <summary>
+            Data em que se iniciou na instituição
+            </summary>
+        </member>
+        <member name="P:SmartSchool.API.v1.Dtos.AlunoRegistrarDto.DataFim">
+            <summary>
+            Data de término
+            </summary>
+        </member>
+        <member name="P:SmartSchool.API.v1.Dtos.AlunoRegistrarDto.Ativo">
+            <summary>
+            Se o aluno esta ativo
+            </summary>
+        </member>
+        <member name="M:SmartSchool.API.v2.Controllers.ProfessorController.Get">
+            <summary>
+            Pega todos os professores
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SmartSchool.API.v2.Controllers.ProfessorController.GetById(System.Int32)">
+            <summary>
+            Pega um professor através de seu Id
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SmartSchool.API.v2.Controllers.ProfessorController.Post(SmartSchool.API.v2.Dtos.ProfessorRegistrarDto)">
+            <summary>
+            Cria um professor
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SmartSchool.API.v2.Controllers.ProfessorController.Put(System.Int32,SmartSchool.API.v2.Dtos.ProfessorRegistrarDto)">
+            <summary>
+            Atualiza determinado professore enviando seu Id
+            </summary>
+            <param name="id"></param>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SmartSchool.API.v2.Controllers.ProfessorController.Delete(System.Int32)">
+            <summary>
+            Deleta determinado professor
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="T:SmartSchool.API.v2.Dtos.ProfessorDto">
+            <summary>
+            Data transfer object -um objeto usado para exibição na interface do usuário
+            </summary>
+        </member>
+        <member name="P:SmartSchool.API.v2.Dtos.ProfessorDto.Id">
+            <summary>
+            Identificação do Professor - gerado automaticamente pelo BD
+            </summary>
+        </member>
+    </members>
+</doc>
