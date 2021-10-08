@@ -1,6 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SmartSchool.API.Helper;
 using SmartSchool.API.Models;
+using System.Collections;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SmartSchool.API.Data
 {
@@ -22,6 +25,27 @@ namespace SmartSchool.API.Data
             context.Remove(entity);
         }
 
+        /// <summary>
+        /// Método usado para pegar todos os alunos de forma assíncrona e já usa o pagination
+        /// </summary>
+        /// <param name="pageParams"></param>
+        /// <param name="includeProfessor"></param>
+        /// <returns></returns>
+        public async Task<PageList<Aluno>> GetAllAlunosAsync(PageParams pageParams,bool includeProfessor = false)
+        {
+            //Task é usado junto ao async para definir o método assíncrono
+            IQueryable<Aluno> query = context.Alunos;
+
+            if (includeProfessor)
+                query = query.Include(i => i.AlunosDisciplinas)
+                            .ThenInclude(i => i.Disciplina)
+                            .ThenInclude(i => i.Professor);
+
+            query = query.AsNoTracking().OrderBy(o => o.Id);
+            //Await é usado para aguardar o método ser completado
+            //PageLis<Aluno> é a classe PageList usando generics para que possa ser informado qualquer objeto para paginação;
+            return await PageList<Aluno>.CreateAsync(query, pageParams.PageNumber, pageParams.PageSize);
+        }
         public Aluno[] GetAllAlunos(bool includeProfessor = false)
         {
             IQueryable<Aluno> query = context.Alunos;
@@ -61,14 +85,15 @@ namespace SmartSchool.API.Data
             return queryAlunos.AsNoTracking().FirstOrDefault(aluno => aluno.Id == id);
         }
 
-        public Professor[] GetAllProfessor(bool includeAluno = false)
+        public async Task<PageList<Professor>> GetAllProfessor(PageParams pageParams, bool includeAluno = false)
         {
             IQueryable<Professor> queryProfessor = context.Professores;
             if (includeAluno)
                 queryProfessor = queryProfessor.Include(i => i.Disciplinas)
                                                .ThenInclude(i => i.AlunosDisciplinas)
                                                .ThenInclude(i => i.Aluno);
-            return queryProfessor.AsNoTracking().OrderBy(order =>order.Id).ToArray();
+            var queryResult = queryProfessor.AsNoTracking().OrderBy(order => order.Id);
+            return await PageList<Professor>.CreateAsync(queryResult,pageParams.PageNumber,pageParams.PageSize);
         }
 
         public Professor[] GetAllProfessorByDisciplina(int id, bool includeAluno = false)

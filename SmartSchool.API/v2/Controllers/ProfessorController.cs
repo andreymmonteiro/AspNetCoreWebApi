@@ -7,6 +7,8 @@ using SmartSchool.API.v2.Dtos;
 using SmartSchool.API.Models;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using SmartSchool.API.Helper;
 
 namespace SmartSchool.API.v2.Controllers
 {
@@ -28,9 +30,9 @@ namespace SmartSchool.API.v2.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get([FromQuery]PageParams pageParams)
         {
-            var Professor = repo.GetAllProfessor(true);
+            var Professor = await repo.GetAllProfessor(pageParams,true);
 
             return Ok(mapper.Map<IEnumerable<ProfessorDto>>(Professor));
         }
