@@ -1,21 +1,15 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using SmartSchool.API.Data;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace SmartSchool.API
 {
@@ -32,38 +26,41 @@ namespace SmartSchool.API
         public void ConfigureServices(IServiceCollection services)
         {
 
-            //Não é interessante injetar o contexto diretamente no controller, a utilização do contexto dessa forma vai trazer dados de outros models desnecessariamente consumindo recursos
-            //O encapsulmaneto é necessário para questões de segurança, ele esconde os membros de uma classe para acesso externo usando identificadores de acesso
+            //Nï¿½o ï¿½ interessante injetar o contexto diretamente no controller, a utilizaï¿½ï¿½o do contexto dessa forma vai trazer dados de outros models desnecessariamente consumindo recursos
+            //O encapsulmaneto ï¿½ necessï¿½rio para questï¿½es de seguranï¿½a, ele esconde os membros de uma classe para acesso externo usando identificadores de acesso
 
-            //Aqui estamos dizendo para o nosso serviço que o SmartContext é nosso contexto e estamos usando Sqlite
+            var connection = Configuration.GetConnectionString("MySqlConnection");
+
+
+            //Aqui estamos dizendo para o nosso serviï¿½o que o SmartContext 
             services.AddDbContext<SmartContext>(
-                context => context.UseSqlite(Configuration.GetConnectionString("Default"))
+                context => context.UseMySql(connection, MySqlServerVersion.LatestSupportedServerVersion)
+                
                 );
-
-            //Ele é quem define as rotas
+            //Ele ï¿½ quem define as rotas
             services.AddControllers()
                     .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling =
                                                         Newtonsoft.Json.ReferenceLoopHandling.Ignore);
-            //Estou passando a aplicação de domínios dos assemblies. O AutoMapper vai procurar dentro das Dlls qual que é a classe que herda de Profile
-            //Basicamente mapear os Dtos e as models, o domínio
+            //Estou passando a aplicaï¿½ï¿½o de domï¿½nios dos assemblies. O AutoMapper vai procurar dentro das Dlls qual que ï¿½ a classe que herda de Profile
+            //Basicamente mapear os Dtos e as models, o domï¿½nio
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             //Toda vez que eu usar o IRepository eu estarei usando o Repository
             #region AddSingleton
-            //Quando iniciar o serviço ele vai estanciar o contexto (Repository) e sempre usar a mesma instância. Compartilhando a mesma memória em todas as requisições
+            //Quando iniciar o serviï¿½o ele vai estanciar o contexto (Repository) e sempre usar a mesma instï¿½ncia. Compartilhando a mesma memï¿½ria em todas as requisiï¿½ï¿½es
             //services.AddSingleton<IRepository, Repository>();
             #endregion
             #region AddTransient
-            //Ele nunca vai usar a mesma requisição amesma instância, ou seja. Se houver 5 dependências ou requisições ,serão 5 instâncias distintas
+            //Ele nunca vai usar a mesma requisiï¿½ï¿½o amesma instï¿½ncia, ou seja. Se houver 5 dependï¿½ncias ou requisiï¿½ï¿½es ,serï¿½o 5 instï¿½ncias distintas
             //services.AddTransient<IRepository, Repository>();
             #endregion
             #region AddScoped
-            //Ele cria uma instância e caso houver alguma dependência de outro objeto ele utiliza essa mesma, ele só renova a instância em caso de nova requisição
+            //Ele cria uma instï¿½ncia e caso houver alguma dependï¿½ncia de outro objeto ele utiliza essa mesma, ele sï¿½ renova a instï¿½ncia em caso de nova requisiï¿½ï¿½o
             services.AddScoped<IRepository, Repository>();
             #endregion
 
 
-            #region Defir versão ou versões da web api
+            #region Defir versï¿½o ou versï¿½es da web api
 
             services.AddVersionedApiExplorer(options =>
             {
@@ -111,9 +108,9 @@ namespace SmartSchool.API
                 
                 //Pega o nome do arquivo xml
                 var xmlComentsFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                //Pega local onde esta rodando aaplicação
+                //Pega local onde esta rodando aaplicaï¿½ï¿½o
                 var xmlComentsFullPath = Path.Combine(AppContext.BaseDirectory, xmlComentsFile);
-                //concatena o caminho com o nome do arquivo para que seja possível visualizar os comentários
+                //concatena o caminho com o nome do arquivo para que seja possï¿½vel visualizar os comentï¿½rios
                 c.IncludeXmlComments(xmlComentsFullPath);
             });
         }
@@ -121,8 +118,8 @@ namespace SmartSchool.API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider apiProviderDescription)
         {
-            if (env.IsDevelopment())
-            {
+            // if (env.IsDevelopment())
+            // {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => 
@@ -131,9 +128,8 @@ namespace SmartSchool.API
                     {
                         c.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
                     }
-                    
                 });
-            }
+            // }
 
             //app.UseHttpsRedirection();
 
