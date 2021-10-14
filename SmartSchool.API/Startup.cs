@@ -1,21 +1,15 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using SmartSchool.API.Data;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace SmartSchool.API
 {
@@ -35,11 +29,14 @@ namespace SmartSchool.API
             //N�o � interessante injetar o contexto diretamente no controller, a utiliza��o do contexto dessa forma vai trazer dados de outros models desnecessariamente consumindo recursos
             //O encapsulmaneto � necess�rio para quest�es de seguran�a, ele esconde os membros de uma classe para acesso externo usando identificadores de acesso
 
-            //Aqui estamos dizendo para o nosso servi�o que o SmartContext � nosso contexto e estamos usando Sqlite
-            services.AddDbContext<SmartContext>(
-                context => context.UseSqlite(Configuration.GetConnectionString("Default"))
-                );
+            var connection = Configuration.GetConnectionString("MySqlConnection");
 
+
+            //Aqui estamos dizendo para o nosso servi�o que o SmartContext 
+            services.AddDbContext<SmartContext>(
+                context => context.UseMySql(connection, MySqlServerVersion.LatestSupportedServerVersion)
+                
+                );
             //Ele � quem define as rotas
             services.AddControllers()
                     .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling =
@@ -121,8 +118,8 @@ namespace SmartSchool.API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider apiProviderDescription)
         {
-            if (env.IsDevelopment())
-            {
+            // if (env.IsDevelopment())
+            // {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => 
@@ -131,9 +128,8 @@ namespace SmartSchool.API
                     {
                         c.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
                     }
-                    
                 });
-            }
+            // }
 
             //app.UseHttpsRedirection();
 
