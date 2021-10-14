@@ -34,7 +34,9 @@ namespace SmartSchool.API
 
             //Aqui estamos dizendo para o nosso servi�o que o SmartContext 
             services.AddDbContext<SmartContext>(
-                context => context.UseMySql(connection, MySqlServerVersion.LatestSupportedServerVersion)
+                context => context.UseMySql(connection,
+                                              ServerVersion.Parse("5.7-mysql"),
+                                              options => options.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10),null))
                 
                 );
             //Ele � quem define as rotas
